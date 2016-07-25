@@ -27,7 +27,7 @@ class ChirpsController < ApplicationController
 
   # POST /chirps
   def create
-    @chirp = current_user.chirps.new(note_params)
+    @chirp = current_user.chirps.new(chirp_params)
 
     if @chirp.save
       render json: @chirp, status: :created, location: @chirp
@@ -58,6 +58,6 @@ class ChirpsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def chirp_params
-      params.require(:chirp).permit(:title, :body)
+      params.permit(:body)
     end
 end
