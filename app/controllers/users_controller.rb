@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
-  before_action :require_user, only: [:timeline, :update, :destroy]
+  before_action :require_user, only: [:profile, :unfollowme, :followme, :timeline, :update, :destroy]
   # GET /users
   def index
     @users = User.all
@@ -8,18 +8,26 @@ class UsersController < ApplicationController
     render json: @users
   end
 
-  # Post /timeline
-  def timeline
-    followers = current_user.followees(User).pluck(:id)
-    all_ids= followers << current_user.id
-    @timeline = Chirp.where(user_id: all_ids).order("created_at DESC")
-
-    render json: @timeline, status: :created
-  end
-
   # GET /users/1
   def show
     render json: @user
+  end
+
+  #GET /profile
+  def profile
+    render json: current_user
+  end
+
+  #GET /search
+  def search
+    chirpsearch = Chirp.where("body ilike ?","%#{params[:search]}%")
+    usersearch = User.where("name ilike ? or email ilike ?", "%#{params[:search]}%", "%#{params[:search]}%")
+    searchresult = usersearch + chirpsearch
+    if searchresult.blank?
+      render json: {result: "no search results"}, status: :created
+    else
+      render json: searchresult, status: :created
+    end
   end
 
   # POST /users
@@ -27,7 +35,7 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
-      render json: @user, serializer: UserCreateSerializer, status: :created, location: @user
+      render json: @user, serializer: UsercreateSerializer, status: :created, location: @user
     else
       render json: {errors: @user.errors.full_messages}, status: :unprocessable_entity
     end
@@ -57,6 +65,20 @@ class UsersController < ApplicationController
     else
       render json: {errors: [{error: "User not found"}]}, status: :unprocessable_entity
     end
+  end
+
+  # GET /follow
+  def followme
+    current_user.follow!(User.find(params[:id]))
+    @fol = current_user.followees(User)
+    render json: @fol, status: :accepted
+  end
+
+  # GET /unfollow
+  def unfollowme
+    current_user.unfollow!(User.find(params[:id]))
+    @fol = current_user.followees(User)
+    render json: @fol, status: :accepted
   end
 
   private

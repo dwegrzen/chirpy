@@ -5,6 +5,10 @@ Rails.application.routes.draw do
 
   post 'login' => 'users#login'
   get 'timeline' => 'chirps#timeline'
+  get 'profile' => 'users#profile'
+  get 'follow'  => 'users#followme'
+  get 'unfollow' => 'users#unfollowme'
+  get 'search' => 'users#search'
 
 
 

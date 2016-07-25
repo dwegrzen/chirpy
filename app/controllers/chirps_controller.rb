@@ -12,7 +12,7 @@ class ChirpsController < ApplicationController
   # post /timeline
   def timeline
     followers = current_user.followees(User).pluck(:id)
-    all_ids= followers << current_user.id
+    all_ids = followers << current_user.id
     @timeline = Chirp.where(user_id: all_ids).order("created_at DESC")
 
     render json: @timeline, status: :created
@@ -22,7 +22,7 @@ class ChirpsController < ApplicationController
     render json: @chirp
   end
 
-    # render json:  @timeline, :serializer => TimelineSerializer, status: :created
+    # render json:  @timeline, each_serializer: TimelineSerializer, status: :created
 
 
   # POST /chirps
