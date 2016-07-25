@@ -32,7 +32,6 @@ end
 
 chirps = 300.times.map do
   Chirp.create!(
-  title: Faker::Superhero.power,
   body: Faker::StarWars.quote,
   user: users.sample
   )
