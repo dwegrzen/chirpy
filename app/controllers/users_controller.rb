@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   def index
     @users = User.all
 
-    render json: @users
+    render json: @users, scope: current_user, scope_name: :current_user
   end
 
   # GET /users/1
@@ -35,6 +35,7 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
+      ChirpyUserMailer.end_signup_email(@user).deliver
       render json: @user, serializer: UsercreateSerializer, status: :created, location: @user
     else
       render json: {errors: @user.errors.full_messages}, status: :unprocessable_entity
@@ -67,14 +68,14 @@ class UsersController < ApplicationController
     end
   end
 
-  # GET /follow
+  # POST /follow
   def followme
     current_user.follow!(User.find(params[:id]))
     @fol = current_user.followees(User)
     render json: @fol, status: :accepted
   end
 
-  # GET /unfollow
+  # DELETE /unfollow
   def unfollowme
     current_user.unfollow!(User.find(params[:id]))
     @fol = current_user.followees(User)

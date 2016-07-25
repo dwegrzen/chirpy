@@ -2,7 +2,7 @@ class User < ApplicationRecord
 
 
   before_validation :name_check
-  has_many :chirps
+  has_many :chirps, dependent: :destroy
 
   has_secure_password
   acts_as_followable
@@ -14,18 +14,16 @@ class User < ApplicationRecord
 
   before_validation :generate_api_token, on: :create
 
-
-  def regenerate_api_token
-    generate_api_token
+  def chirp_count
+    self.chirps.length
   end
+
 
   private
 
   def name_check
     self.name.gsub!(/\.|-|\s/, "_")
   end
-
-
 
   def generate_api_token
     while api_token.blank? || User.exists?(api_token: api_token)

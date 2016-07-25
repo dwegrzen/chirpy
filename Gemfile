@@ -17,6 +17,7 @@ gem 'pry-rails'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'faker'
 gem "socialization"
+gem 'figaro'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

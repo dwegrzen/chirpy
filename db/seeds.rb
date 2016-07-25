@@ -6,8 +6,6 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-
-
 usednames = []
 usedemail = []
 users = 100.times.map do
@@ -37,11 +35,10 @@ chirps = 300.times.map do
   )
 end
 
-
 300.times do
   user1 = users.sample
   user2 = nil
-  while user2.blank? || user2 = user1
+  while user2.blank? || user2 == user1
     user2 = users.sample
   end
   user1.follow!(user2)
