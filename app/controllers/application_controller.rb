@@ -10,7 +10,7 @@ class ApplicationController < ActionController::API
   end
 
   def require_user
-    render json: {errors: [{error: "You need to be logged in to do that."}]}, status: :forbidden unless current_user
+    render json: {error: "You need to be logged in to do that."}, status: :forbidden unless current_user
   end
 
 

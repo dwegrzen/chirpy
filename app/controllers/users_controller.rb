@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :update, :destroy]
-  before_action :require_user, only: [:profile, :unfollowme, :followme, :timeline, :update, :destroy]
+  before_action :require_user
+  before_action :set_user, only: [:show]
+
   # GET /users
   def index
     @users = User.all
@@ -35,7 +36,7 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
-      ChirpyUserMailer.end_signup_email(@user).deliver
+      ChirpyUserMailer.send_signup_email(@user).deliver
       render json: @user, serializer: UsercreateSerializer, status: :created, location: @user
     else
       render json: {errors: @user.errors.full_messages}, status: :unprocessable_entity
@@ -61,16 +62,17 @@ class UsersController < ApplicationController
       if @user.authenticate(params[:password])
         render json: {api_token: @user.api_token}.to_json
       else
-        render json: {errors: [{error: "Password incorrect"}]}, status: :unprocessable_entity
+        render json: {error: "Password incorrect"}, status: :unprocessable_entity
       end
     else
-      render json: {errors: [{error: "User not found"}]}, status: :unprocessable_entity
+      render json: {error: "User not found"}, status: :unprocessable_entity
     end
   end
 
   # POST /follow
   def followme
     current_user.follow!(User.find(params[:id]))
+    ChirpyUserMailer.send_followed_email(User.find(params[:id]), current_user).deliver
     @fol = current_user.followees(User)
     render json: @fol, status: :accepted
   end

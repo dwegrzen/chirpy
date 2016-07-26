@@ -1,6 +1,6 @@
 class ChirpsController < ApplicationController
   before_action :set_chirp, only: [:show, :update, :destroy]
-  before_action :require_user, only: [:timeline, :create, :update, :destroy]
+  before_action :require_user, only: [:index, :timeline, :create, :update, :destroy]
 
   # GET /chirps
   def index
@@ -18,6 +18,7 @@ class ChirpsController < ApplicationController
     render json: @timeline, status: :created
   end
   # GET /chirps/1
+
   def show
     render json: @chirp
   end
