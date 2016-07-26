@@ -163,7 +163,7 @@ If incorrect api_token or no api_token is provided-
 HTTP/1.1 403 Forbidden
 
 --------------------------------------------------------------------------------
-
+Other user profile show (non current_user)
 GET    /users/:id(.:format)
 
 Input:
@@ -195,4 +195,234 @@ Sample Output:
     ]
 }
 
-Notes: Does not require an api_token to query
+Notes: Does not require an api_token to query a user. If user_id does not exist:
+HTTP/1.1 404 Not Found
+
+--------------------------------------------------------------------------------
+Chirp and user database search
+POST    /search/:search(.:format)
+
+Input:
+[No root key]
+
+Key         Value Constraints
+:search     search term as a string that is used to query through user and chirp databases
+:api_token   *Required field, validates user identity with api_token against database and uses to determine                                          current_user in other transactions
+
+Search Input:
+search=droid&api_token=b7dd53c81359624aed7b
+
+Sample Output:
+[
+    {
+        "id": 108,
+        "name": "droid",
+        "email": "droid@droidguy.net",
+        "userpic": null,
+        "bio": null,
+        "followees_count": 0,
+        "followers_count": 0,
+        "chirp_count": 0,
+        "currently_being_followed": false,
+        "chirps": []
+    },
+    {
+        "body": "You know, that little droid is going to cause me a lot of trouble.",
+        "user_id": 35,
+        "id": 23,
+        "user": {
+            "id": 35,
+            "name": "lon_boyle",
+            "email": "beie_schinner@feil.info",
+            "userpic": "https://robohash.org/daniel",
+            "bio": "Pickled whatever thundercats meggings listicle.",
+            "followees_count": 4,
+            "followers_count": 4,
+            "chirp_count": 3,
+            "currently_being_followed": false
+        }
+    },
+    {
+        "body": .....
+
+        }
+    }
+]
+
+Notes: Will return results from both user database (name, email) and chirps (body) which contain the search string. If no search results, following is returned:
+
+No result:
+{
+    "result": "no search results"
+}
+
+--------------------------------------------------------------------------------
+Follow user chirps
+POST   /follow/:id(.:format)
+
+Input:
+[No root key]
+
+Key         Value Constraints
+:id         user_id of person that the current user wants to follow
+:api_token  *Required field, validates user identity with api_token against database and uses to determine                                          current_user in other transactions
+
+Sample Output:
+[
+    {
+        "id": 4,
+        "name": "arne",
+        "email": "creola_champlin@spencer.name",
+        "userpic": "https://robohash.org/daniel",
+        "bio": "Fixie brooklyn gluten-free pbr&b knausgaard direct trade franzen kinfolk.",
+        "followees_count": 1,
+        "followers_count": 1,
+        "chirp_count": 5,
+        "currently_being_followed": true,
+        "chirps": [
+            {
+                "body": "You will never find a more wretched hive of scum and villainy. We must be cautious.",
+                "user_id": 4,
+                "id": 28
+            },
+            {
+              ....
+            }
+        ]
+    },
+    {
+        "id": 5,
+        .....
+    }
+]        
+
+Notes: Returns list of the current_user's followees as well as any followees' chirps. Must have an api_token to request a follow. Will send an email to the person that is followed to notify them who is following them. No issues if person is already followed. currently_being_followed flag switched to true upon follow (relative to current_user)
+
+Sample Errors:
+
+If incorrect api_token or no api_token is provided-
+{
+    "error": "You need to be logged in to do that."
+}
+HTTP/1.1 403 Forbidden
+
+If user_id does not exist:
+HTTP/1.1 404 Not Found
+
+--------------------------------------------------------------------------------
+Unfollow user chirps
+DELETE   /unfollow/:id(.:format)
+
+Input:
+[No root key]
+
+Key         Value Constraints
+:id         user_id of person that the current user wants to unfollow
+:api_token  *Required field, validates user identity with api_token against database and uses to determine                                          current_user in other transactions
+
+
+Sample Output:
+[
+    {
+        "id": 4,
+        "name": "arne",
+        "email": "creola_champlin@spencer.name",
+        "userpic": "https://robohash.org/daniel",
+        "bio": "Fixie brooklyn gluten-free pbr&b knausgaard direct trade franzen kinfolk.",
+        "followees_count": 1,
+        "followers_count": 1,
+        "chirp_count": 5,
+        "currently_being_followed": true,
+        "chirps": [
+            {
+                "body": "You will never find a more wretched hive of scum and villainy. We must be cautious.",
+                "user_id": 4,
+                "id": 28
+            },
+            {
+                "body": .....
+            }
+        ]
+    }
+]
+
+Notes: Returns list of the current_user's followees as well as any followees' chirps. Must have an api_token to request a follow. Currently_being_followed flag switched to flase upon unfollow (relative to current_user). No impact if unfollowed user was not being followed by the user prior to unfollow attempt.
+
+Sample Errors:
+
+If incorrect api_token or no api_token is provided-
+{
+    "error": "You need to be logged in to do that."
+}
+HTTP/1.1 403 Forbidden
+
+If user_id does not exist:
+HTTP/1.1 404 Not Found
+
+--------------------------------------------------------------------------------
+Create new chirp
+POST   /chirps
+
+Input:
+[No root key]
+
+Key         Value Constraints
+:body       body of chirp, can contain up to 170 characters of text
+:api_token  *Required field, validates user identity with api_token against database and uses to determine                                          current_user in other transactions
+
+Sample Input:
+api_token=cdc58dce053b0c2b083d&body=test%20chirp
+
+Sample Output:
+{
+    "body": "test chirp",
+    "user_id": 108,
+    "id": 311,
+    "user": {
+        "id": 108,
+        "name": "droid",
+        "email": "droid@droidguy.net",
+        "userpic": null,
+        "bio": null,
+        "followees_count": 1,
+        "followers_count": 0,
+        "chirp_count": 2,
+        "currently_being_followed": false
+    }
+}
+
+Notes: Sole method of creating chirps, must have an api_token to identify who is making the chirp. Renders new chirp upon creation and shares user information as wel. Will create validation error upon creation attempt of a chirp with :body value >170 characters.
+
+Sample Error:
+{
+    "body": [
+        "is too long (maximum is 170 characters)"
+    ]
+}
+HTTP/1.1 422 Unprocessable Entity
+
+--------------------------------------------------------------------------------
+Delete User
+DELETE /users/:id(.:format)
+
+Input:
+[No root key]
+
+Key         Value Constraints
+:id         requires user ID of user that will be removed
+:api_token  *Required field, validates user identity with api_token against database and uses to determine                                          current_user in other transactions
+
+No output after deletion, must have api_token of user to be deleted as well. All related chirps will be deleted when after the deletion is processed.
+
+--------------------------------------------------------------------------------
+Delete Chirp
+DELETE /chirps/:id(.:format)
+
+Input:
+[No root key]
+
+Key         Value Constraints
+:id         requires chirp ID of chirp that will be removed
+:api_token  *Required field, validates user identity with api_token against database and uses to determine                                          current_user in other transactions
+
+No output after deletion, must have api_token of user who created the chirp originally.

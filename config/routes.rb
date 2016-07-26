@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :chirps
+  resources :chirps 
   resources :users
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   get 'profile' => 'users#profile'
   post 'follow/:id'  => 'users#followme'
   delete 'unfollow/:id' => 'users#unfollowme'
-  get 'search' => 'users#search'
+  post 'search' => 'users#search'
 
 
 

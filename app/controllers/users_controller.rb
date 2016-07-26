@@ -1,10 +1,10 @@
 class UsersController < ApplicationController
-  before_action :require_user
   before_action :set_user, only: [:show]
+  before_action :require_user
 
   # GET /users
   def index
-    @users = User.all
+    @users = User.where.not(id: current_user.id).order("name asc")
 
     render json: @users, scope: current_user, scope_name: :current_user
   end
@@ -19,13 +19,13 @@ class UsersController < ApplicationController
     render json: current_user
   end
 
-  #GET /search
+  #POST /search
   def search
     chirpsearch = Chirp.where("body ilike ?","%#{params[:search]}%")
     usersearch = User.where("name ilike ? or email ilike ?", "%#{params[:search]}%", "%#{params[:search]}%")
     searchresult = usersearch + chirpsearch
     if searchresult.blank?
-      render json: {result: "no search results"}, status: :created
+      render json: {result: "no search results"}, status: :created, scope: current_user, scope_name: :current_user
     else
       render json: searchresult, status: :created
     end
@@ -40,15 +40,6 @@ class UsersController < ApplicationController
       render json: @user, serializer: UsercreateSerializer, status: :created, location: @user
     else
       render json: {errors: @user.errors.full_messages}, status: :unprocessable_entity
-    end
-  end
-
-  # PATCH/PUT /users/1
-  def update
-    if current_user.update(user_params)
-      render json: @user
-    else
-      render json: @user.errors, status: :unprocessable_entity
     end
   end
 
@@ -69,15 +60,15 @@ class UsersController < ApplicationController
     end
   end
 
-  # POST /follow
+  # POST /follow/1
   def followme
     current_user.follow!(User.find(params[:id]))
-    ChirpyUserMailer.send_followed_email(User.find(params[:id]), current_user).deliver
+    # ChirpyUserMailer.send_followed_email(User.find(params[:id]), current_user).deliver
     @fol = current_user.followees(User)
     render json: @fol, status: :accepted
   end
 
-  # DELETE /unfollow
+  # DELETE /unfollow/1
   def unfollowme
     current_user.unfollow!(User.find(params[:id]))
     @fol = current_user.followees(User)

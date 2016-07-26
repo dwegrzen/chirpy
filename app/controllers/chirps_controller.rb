@@ -23,9 +23,6 @@ class ChirpsController < ApplicationController
     render json: @chirp
   end
 
-    # render json:  @timeline, each_serializer: TimelineSerializer, status: :created
-
-
   # POST /chirps
   def create
     @chirp = current_user.chirps.new(chirp_params)
@@ -37,14 +34,6 @@ class ChirpsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /chirps/1
-  def update
-    if @chirp.update(chirp_params)
-      render json: @chirp
-    else
-      render json: @chirp.errors, status: :unprocessable_entity
-    end
-  end
 
   # DELETE /chirps/1
   def destroy
