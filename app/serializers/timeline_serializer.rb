@@ -1,8 +1,14 @@
 class TimelineSerializer < ActiveModel::Serializer
-# was used to help with timeline data format, can be used elsewhere
 
-  attributes :body, :user_id
+attributes :body, :user_id, :id, :created_at, :username, :userpic
 
-  belongs_to :user
+  def username
+    object.user.name
+  end
 
+  def userpic
+    object.user.userpic
+  end
+
+  
 end
