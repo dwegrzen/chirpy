@@ -23,7 +23,7 @@ users = 100.times.map do
   name: tempname,
   password: "password",
   email: tempemail,
-  userpic: "https://robohash.org/daniel",
+  userpic: "https://robohash.org/#{rand(10000)}",
   bio: Faker::Hipster.sentence
   )
 end
