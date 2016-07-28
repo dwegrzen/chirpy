@@ -15,7 +15,7 @@ attributes :body, :user_id, :id, :chirptime, :username, :userpic, :userpage
   end
 
   def userpage
-    "https://arcane-shore-86443.herokuapp.com#{object.user.id}"
+    "https://arcane-shore-86443.herokuapp.com/users/#{object.user.id}"
   end
 
 end
