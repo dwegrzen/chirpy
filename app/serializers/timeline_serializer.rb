@@ -1,6 +1,6 @@
 class TimelineSerializer < ActiveModel::Serializer
 
-attributes :body, :user_id, :id, :chirptime, :username, :userpic
+attributes :body, :user_id, :id, :chirptime, :username, :userpic, :userpage
 
   def username
     object.user.name
@@ -12,6 +12,10 @@ attributes :body, :user_id, :id, :chirptime, :username, :userpic
 
   def chirptime
     object.user.created_at
+  end
+
+  def userpage
+    "https://arcane-shore-86443.herokuapp.com#{object.user.id}"
   end
 
 end
